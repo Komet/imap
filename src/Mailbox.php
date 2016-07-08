@@ -48,6 +48,18 @@ class Mailbox implements \Countable, \IteratorAggregate
     }
 
     /**
+     * Get status of this mailbox
+     *
+     * @return object
+     */
+    public function status()
+    {
+        $this->init();
+
+        return imap_status($this->connection->getResource(), $this->mailbox, SA_ALL);
+    }
+
+    /**
      * Get message ids
      *
      * @param SearchExpression $search Search expression (optional)
