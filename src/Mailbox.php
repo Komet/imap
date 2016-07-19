@@ -62,13 +62,14 @@ class Mailbox implements \Countable, \IteratorAggregate
     /**
      * Get message ids
      *
-     * @param SearchExpression $search Search expression (optional)
-	 * @param int              $offset Message offset
-	 * @param int              $limit  Maximum number of messages
+     * @param SearchExpression $search     Search expression (optional)
+     * @param int              $offset     Message offset
+     * @param int              $limit      Maximum number of messages
+     * @param int              $numResults Number of results
      *
      * @return MessageIterator|Message[]
      */
-    public function getMessages(SearchExpression $search = null, $offset = null, $limit = null)
+    public function getMessages(SearchExpression $search = null, $offset = null, $limit = null, &$numResults = 0)
     {
         $this->init();
 
@@ -77,10 +78,14 @@ class Mailbox implements \Countable, \IteratorAggregate
         if ($offset !== null || $limit !== null) {
             $messageNumbers = imap_sort($this->connection->getResource(), \SORTARRIVAL, 1, \SE_UID, $query);
             if ($messageNumbers !== false) {
+                $numResults = count($messageNumbers);
                 $messageNumbers = array_splice($messageNumbers, $offset !== null ? $offset : 0, $limit !== null ? $limit : 0);
             }
         } else {
             $messageNumbers = imap_search($this->connection->getResource(), $query, \SE_UID);
+            if ($messageNumbers !== false) {
+                $numResults = count($messageNumbers);
+            }
         }
 
         if (false == $messageNumbers) {
